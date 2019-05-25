@@ -1301,7 +1301,7 @@
 )
 
 (def back-panel-cutter
-  (translate [0 wall-thickness 0]
+  (translate [-0.2 4.2 0.0]
     (minkowski
       back-wall-fix
       (rotate (/ (- pi) 2) [1 0 0] 
@@ -1372,7 +1372,7 @@
 (def panel_x 42.0)
 (def panel_y 12.0)
 (def panel_z 11.0)
-(def back-panel-origin [-5 70 13])
+(def back-panel-origin [-5 72 13])
 
 (def back-panel-hole  
   (let [
@@ -1406,12 +1406,18 @@
           pos (+ back_of_panel half_wall)
           thickness-cut 20
           ]
-          (translate [5 pos 0] 
-            (rotate (/ (- pi) 2) [1 0 0] 
-              (usbc_cutout thickness-cut)
+          (union 
+            (translate [5 pos 0] 
+              (rotate (/ (- pi) 2) [1 0 0] 
+                (usbc_cutout thickness-cut)
+              )
+            )
+            (translate [-14 pos 0] 
+              (rotate (/ (- pi) 2) [1 0 0] 
+                (cylinder [3.45 3.45] thickness-cut)
+              )
             )
           )
-          
           
         )
       )
