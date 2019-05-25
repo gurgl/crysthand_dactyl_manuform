@@ -1330,20 +1330,51 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+
+(defn wall-locate2-fix [dx dy] [(* dx wall-xy-offset) (* dy wall-xy-offset) wall-z-offset])
+(defn wall-locate3-fix [dx dy] [(* dx (+ wall-xy-offset wall-thickness)) (* dy (+ wall-xy-offset wall-thickness)) wall-z-offset])
+
+; 
+(defn wall-brace-fix [place1 dx1 dy1 post1 place2 dx2 dy2 post2]
+  (bottom-hull
+    (place1 (translate (wall-locate2 dx1 dy1) post1))
+    (place1 (translate (wall-locate3 dx1 dy1) post1))
+    (place2 (translate (wall-locate2 dx2 dy2) post2))
+    (place2 (translate (wall-locate3 dx2 dy2) post2)))
+  )
+
+(defn key-wall-brace-fix [x1 y1 dx1 dy1 post1 x2 y2 dx2 dy2 post2]
+  (wall-brace-fix (partial key-place x1 y1) dx1 dy1 post1
+              (partial key-place x2 y2) dx2 dy2 post2))
+
+(def back-wall-fix
+   (union 
+   (for [x (range 0 (- ncols 2))] (key-wall-brace-fix x 0 0 1 web-post-tl x       0 0 1 web-post-tr))
+   (for [x (range 1 (- ncols 2))] (key-wall-brace-fix x 0 0 1 web-post-tl (dec x) 0 0 1 web-post-tr))
+   ;(key-wall-brace lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr)
+   )
+  )
+
+
 (def the_thing_that_should_cube_outlier
   (translate [100,100,100]
     (union
       (minkowski
-        (sphere 50)
-        ; (translate [100,0,100]          
-        ;)
-        (rotate (/ (- pi) 2) [0 1 0] 
-            (cylinder [50 1] 100)
-            )
+        back-wall-fix
+        (rotate (/ (- pi) 2) [1 0 0] 
+            (cube 0.01 0.01 20)
+        )
       )
     )
   )
-  )
+)
+
+
+(def the_thing_that_should_cube_outlier2
+  (translate [100 100 100] back-wall-fix)  
+)
+
+  
 
 (def model-right 
   (difference
