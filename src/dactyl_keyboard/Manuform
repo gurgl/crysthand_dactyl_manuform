@@ -498,7 +498,6 @@
 
 (def thumb
   (union
-   (translate [100 0 3] usbc-holder)
    (thumb-1x-layout single-plate)
    (thumb-15x-layout  (if (== switch-type 2) single-plate-rotated single-plate ))
    (thumb-15x-layout larger-plate)
@@ -1294,14 +1293,9 @@
   )
 
 
-(def the_thing_that_should_cube_outlier
-  (translate [100,100,100]
-    back-panel-cutter
-  )
-)
 
 (def back-panel-cutter
-  (translate [-0.2 4.2 0.0]
+  (translate [-0.2 4.5 0.0] ; CHEAT
     (minkowski
       back-wall-fix
       (rotate (/ (- pi) 2) [1 0 0] 
@@ -1310,6 +1304,13 @@
     )
   )
 )
+
+(def the_thing_that_should_cube_outlier
+  (translate [100,100,100]
+    back-panel-cutter
+  )
+)
+
 
 (def the_thing_that_should_cube_outlier2
   (translate [100 100 100] back-wall-fix)  
@@ -1372,16 +1373,14 @@
 (def panel_x 42.0)
 (def panel_y 12.0)
 (def panel_z 11.0)
-(def back-panel-origin [-5 72 13])
+(def back-panel-origin [-5 73 13])
 
 (def back-panel-hole  
   (let [
       clearance 30
     ]
     (translate back-panel-origin 
-      (translate [0 0 0]  
-        (cube panel_x (+ clearance panel_y) panel_z)
-      )
+      (cube panel_x (+ clearance panel_y) panel_z)      
     )    
   )
 )
@@ -1396,36 +1395,46 @@
 
 
 (def back-panel 
-  (difference 
+  (union
+    (difference 
+      (translate back-panel-origin 
+        (difference
+          (cube (dimo panel_x) (dimo panel_y) (dimo panel_z))
+          (cube panel_x (+ 20 panel_y) panel_z)
+        )
+      )
+      back-panel-cutter
+      ; back-panel-hole-inset
+    )
     (translate back-panel-origin 
-      (difference
-        (cube (dimo panel_x) (dimo panel_y) (dimo panel_z))
-        (let [
-          back_of_panel (- (/ panel_y 2))
-          half_wall (- (/ wall-thickness 2))
-          pos (+ back_of_panel half_wall)
-          thickness-cut 20
-          ]
-          (union 
-            (translate [5 pos 0] 
-              (rotate (/ (- pi) 2) [1 0 0] 
-                (usbc_cutout thickness-cut)
+      (translate [0 (- (/ (+ panel_y wall-thickness) 2 )) 0]
+        (difference 
+          (cube panel_x wall-thickness panel_z)
+          (let [
+            back_of_panel (- (/ panel_y 2))
+            half_wall (- (/ wall-thickness 2))
+            pos (+ back_of_panel half_wall)
+            thickness-cut 20
+            ]
+            (union 
+              (translate [5 pos 0] 
+                (rotate (/ (- pi) 2) [1 0 0] 
+                  (usbc_cutout thickness-cut)
+                )
               )
-            )
-            (translate [-14 pos 0] 
-              (rotate (/ (- pi) 2) [1 0 0] 
-                (cylinder [3.45 3.45] thickness-cut)
+              (translate [-14 pos 0] 
+                (rotate (/ (- pi) 2) [1 0 0] 
+                  (cylinder [3.45 3.45] thickness-cut)
+                )
               )
-            )
-          )
-          
+            )     
+          ) 
         )
       )
     )
-    back-panel-cutter
-    back-panel-hole-inset
   )
 )
+
 
 
 (def the_thing_that_should_cube_outlier3 
@@ -1448,10 +1457,12 @@
       key-holes
       ; the_thing_that_should_cube_outlier3 
       ; (translate [100 100 100] case-wall-cutout)
+      ; (translate [100 100 100] back-panel)
+      back-panel
       connectors
       thumb
       thumb-connectors            
-      back-panel
+      
       ; back-panel-hole-inset
       (difference
         (union case-walls
