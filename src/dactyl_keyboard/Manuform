@@ -495,55 +495,6 @@
    (thumb-1x-layout (sa-cap 1))
    (thumb-15x-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.5)))))
 
-(defn rounded-cube [x y z r]
-    (let [
-        corner (cylinder [r r] z)
-        hx (/ x 2.0)
-        hy (/ y 2.0)
-        hxr (- hx r)
-        hyr (- hy r)        
-        corners (union 
-            (translate [hxr hyr 0] corner)
-            (translate [(- hxr) hyr 0] corner)
-            (translate [(- hxr) (- hyr) 0] corner)
-            (translate [hxr (- hyr) 0] corner)
-          )
-        rr (* r 2.0)
-        cube_cut (cube rr rr (* z 1.1))
-        corners_cut (union 
-            (translate [hx hy 0] cube_cut)
-            (translate [(- hx) hy 0] cube_cut)
-            (translate [(- hx) (- hy) 0] cube_cut)
-            (translate [hx (- hy) 0] cube_cut)
-          )
-        ]
-    (union 
-      (difference 
-        (cube x y z)
-        corners_cut          
-      )
-      corners
-      )))
-
-
-(def usbc-holderr
-  (let [
-        hole (cylinder [1.4 1.4] 4.0)
-        ]
-    (difference 
-      (rounded-cube 23.5 8.8 3.0 1.0)
-      ; (cube 23.5 8.8 3.0)
-      
-      (union 
-        (translate [9.25 0 0] hole)
-        (translate [-9.25 0 0] hole)
-        (rounded-cube 10.55 5.55 4 1.25)
-        )
-        ; (cube 10.55 5.55 4))
-      ))
-      )
-(def usbc-holder usbc-holderr)
-
 
 (def thumb
   (union
@@ -1286,7 +1237,7 @@
 	)
 )
 
-(def back-panel-origin [-20 70 13])
+
 
 
 (comment 
@@ -1310,19 +1261,6 @@
   ")
 
 
-(def back-panel 
-    (difference 
-      (translate back-panel-origin (cube 40 20 18))
-      ; extrude-linear {:height 0.1 :twist 0 :convexity 0}
-      back-wall
-    )
-  )
-(def back-panel-hole
-  (intersection 
-    (translate back-panel-origin (cube 40 20 18))
-    back-wall 
-  )
-  )
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1358,42 +1296,165 @@
 
 (def the_thing_that_should_cube_outlier
   (translate [100,100,100]
-    (union
-      (minkowski
-        back-wall-fix
-        (rotate (/ (- pi) 2) [1 0 0] 
-            (cube 0.01 0.01 20)
-        )
+    back-panel-cutter
+  )
+)
+
+(def back-panel-cutter
+  (translate [0 wall-thickness 0]
+    (minkowski
+      back-wall-fix
+      (rotate (/ (- pi) 2) [1 0 0] 
+          (translate [0 0 10] (cube 0.01 0.01 20))
       )
     )
   )
 )
 
-
 (def the_thing_that_should_cube_outlier2
   (translate [100 100 100] back-wall-fix)  
 )
 
-  
+(defn rounded-cube [x y z r]
+    (let [
+        corner (cylinder [r r] z)
+        hx (/ x 2.0)
+        hy (/ y 2.0)
+        hxr (- hx r)
+        hyr (- hy r)        
+        corners (union 
+            (translate [hxr hyr 0] corner)
+            (translate [(- hxr) hyr 0] corner)
+            (translate [(- hxr) (- hyr) 0] corner)
+            (translate [hxr (- hyr) 0] corner)
+          )
+        rr (* r 2.0)
+        cube_cut (cube rr rr (* z 1.1))
+        corners_cut (union 
+            (translate [hx hy 0] cube_cut)
+            (translate [(- hx) hy 0] cube_cut)
+            (translate [(- hx) (- hy) 0] cube_cut)
+            (translate [hx (- hy) 0] cube_cut)
+          )
+        ]
+    (union 
+      (difference 
+        (cube x y z)
+        corners_cut          
+      )
+      corners
+      )))
+
+(defn usbc_cutout [thickness]
+  (let [
+    hole (cylinder [1.4 1.4] thickness)
+    ]
+    (union 
+      (translate [9.25 0 0] hole)
+      (translate [-9.25 0 0] hole)
+      (rounded-cube 10.55 5.55 thickness 1.25)
+    )
+  )
+)
+
+(def usbc-holderr
+    (difference 
+      (rounded-cube 23.5 8.8 3.0 1.0)            
+      (usbc_cutout wall-thickness)
+      )
+      )
+(def usbc-holder usbc-holderr)
+
+
+
+(defn dimo [x] (+ x (* 2 wall-thickness)))
+
+(def panel_x 42.0)
+(def panel_y 12.0)
+(def panel_z 11.0)
+(def back-panel-origin [-5 70 13])
+
+(def back-panel-hole  
+  (let [
+      clearance 30
+    ]
+    (translate back-panel-origin 
+      (translate [0 0 0]  
+        (cube panel_x (+ clearance panel_y) panel_z)
+      )
+    )    
+  )
+)
+(def outshot 20)
+(def back-panel-hole-inset  
+    (translate back-panel-origin 
+      (translate [0 (/ outshot 2) 0]  
+        (cube panel_x (+ outshot panel_y) panel_z)
+      )
+    )    
+  )  
+
+
+(def back-panel 
+  (difference 
+    (translate back-panel-origin 
+      (difference
+        (cube (dimo panel_x) (dimo panel_y) (dimo panel_z))
+        (let [
+          back_of_panel (- (/ panel_y 2))
+          half_wall (- (/ wall-thickness 2))
+          pos (+ back_of_panel half_wall)
+          thickness-cut 20
+          ]
+          (translate [5 pos 0] 
+            (rotate (/ (- pi) 2) [1 0 0] 
+              (usbc_cutout thickness-cut)
+            )
+          )
+          
+          
+        )
+      )
+    )
+    back-panel-cutter
+    back-panel-hole-inset
+  )
+)
+
+
+(def the_thing_that_should_cube_outlier3 
+  (translate back-panel-origin 
+        (let [
+          back_of_panel (- (/ panel_y 2))
+          half_wall 0.5 ; (- (/ wall-thickness 2))
+          pos (+ back_of_panel half_wall)
+          thickness-cut 20
+          ]
+          (translate [0 pos 0] (usbc_cutout thickness-cut))
+        )
+      )    
+)
 
 (def model-right 
+  (union 
   (difference
     (union
       key-holes
-      the_thing_that_should_cube_outlier
+      ; the_thing_that_should_cube_outlier3 
       ; (translate [100 100 100] case-wall-cutout)
       connectors
       thumb
-      thumb-connectors
-      
-      
+      thumb-connectors            
+      back-panel
+      ; back-panel-hole-inset
       (difference
         (union case-walls
           (if (==  bottom-cover 1) screw-insert-outers)
           teensy-holder
           ; usb-holder
           ; trrs-holder
-          back-panel
+          ; (translate [100 100 100]         
+          ; )
         )        
         back-panel-hole
         ; rj9-space
@@ -1405,10 +1466,12 @@
         ; //  wire-posts
         ; thumbcaps
         ; caps
-      )
+      )      
       (translate [0 0 -20] (cube 350 350 40))
     )
+  ; (translate [0 0 -20] back-panel-hole)
   )
+)
 
 (spit "things/right.scad"
       ; (write-scad usbc-holder))
