@@ -845,7 +845,7 @@
 (def usb-holder-position 
   (map + 
     (key-position 0 (- centerrow 0) (wall-locate3 -1 0)) 
-    [-4 0 
+    [-4 -10 
       (+ 
         -28 
         (/ (+ (last usb-holder-size) usb-holder-thickness) 2)
