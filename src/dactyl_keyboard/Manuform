@@ -838,10 +838,22 @@
          (translate [(first original_usb_holder_position) (second original_usb_holder_position) (/ (+ (last original_usb_holder_size) original_usb_holder_thickness) 2)])))
 
 
-(def usb-holder-position (key-position 0 1 (map + (wall-locate1 0 (- 4.9 (* 0.1 nrows))) [0 (/ mount-height 2) 0])))
+; (def usb-holder-position (key-position 0 1 (map + (wall-locate1 0 (- 4.9 (* 0.1 nrows))) [0 (/ mount-height 2) 0])))
+; 
 
-; (def usb-holder-position (key-position 0 (- centerrow 0) (wall-locate3 -1 0)))
 (def usb-holder-size [5.5 33.34 18.4 ])	;;5.5 33.34 18.4
+(def usb-holder-position 
+  (map + 
+    (key-position 0 (- centerrow 0) (wall-locate3 -1 0)) 
+    [-4 0 
+      (+ 
+        -28 
+        (/ (+ (last usb-holder-size) usb-holder-thickness) 2)
+      )
+    
+    ]
+  )
+)
 (def usb-hole-size [9.5 33.34 18.4  ]) ;;9.5 33.34 18.4
 #_(def usb-holder-size [5.5 27.8 23.4 ])	;;Dimensions for adafruit feather
 #_(def usb-hole-size [9.5 33.34 23.4  ])  ;Dimensions for adafruit feather
@@ -849,31 +861,31 @@
 (def usb-hole-size-right [6 35.6 10.0 ]) ;;6 35.6 10.0
 (def usb-holder-thickness 5)
 (def usb-holder
-    (->> (difference
+  (->> (difference
 
-	(cube (+ (first usb-holder-size) usb-holder-thickness) (+ (second usb-holder-size) usb-holder-thickness) (+ (last usb-holder-size) usb-holder-thickness)
+	  (cube (+ (first usb-holder-size) usb-holder-thickness) (+ (second usb-holder-size) usb-holder-thickness) (+ (last usb-holder-size) usb-holder-thickness)
+	  )
 
-	 )
+	   ) 
 
-	; (cube 5 5 5)
-     ) ; (apply cube usb-hole-size))
-
-
-	(translate [(first usb-holder-position) (second usb-holder-position) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)])
-		; (rotate -0.6 [0 0 1])
-		;( translate [(- (first usb-holder-position) 10) (+ (second usb-holder-position) 4) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)])
-		))
+	(translate [
+      (first usb-holder-position) 
+      (second usb-holder-position)       
+      (last usb-holder-position)             
+      ]
+		)
+    ))
 
 
 (def usb-holder-hole
     (->>
 		(union
 		(->>(apply cube usb-hole-size)
-         (translate [(+ (first usb-holder-position ) 2) (second usb-holder-position) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)]))
+         (translate [(+ (first usb-holder-position ) 2) (second usb-holder-position) (last usb-holder-position)]))
 		 (->>(apply cube usb-hole-size-left)
-         (translate [(+ (first usb-holder-position ) 2) (- (second usb-holder-position) 10) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)]))
+         (translate [(+ (first usb-holder-position ) 2) (- (second usb-holder-position) 10) (last usb-holder-position)]))
 		 (->>(apply cube usb-hole-size-right)
-         (translate [(+ (first usb-holder-position ) 2) (+ (second usb-holder-position) 10) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)]))
+         (translate [(+ (first usb-holder-position ) 0.5) (+ (second usb-holder-position) 10) (last usb-holder-position)]))
 		 )))
 
 (def trrs-holder-position (key-position 2. 1 (map + (wall-locate1 0 (+ 7.8 (* 0.13 nrows))) [0 (/ mount-height 2) 0])))
@@ -1240,29 +1252,6 @@
 
 
 
-(comment 
-  "
-  (def usb-holder-thickness 5)
-  (def usb-holder
-      (->> (difference
-
-    (cube (+ (first usb-holder-size) usb-holder-thickness) (+ (second usb-holder-size) usb-holder-thickness) (+ (last usb-holder-size) usb-holder-thickness)
-
-    )
-
-    ; (cube 5 5 5)
-      ) ; (apply cube usb-hole-size))
-
-
-    (translate [(first usb-holder-position) (second usb-holder-position) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)])
-      ; (rotate -0.6 [0 0 1])
-      ;( translate [(- (first usb-holder-position) 10) (+ (second usb-holder-position) 4) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)])
-      )
-  ")
-
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;&&&&&&&&Final export&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1428,12 +1417,12 @@
       (difference
         (union case-walls
           (if (==  bottom-cover 1) screw-insert-outers)
-          teensy-holder
+          ; teensy-holder
           ; original_usb_holder
-          ; (difference 
-          ;     usb-holder
-          ;     usb-holder-hole
-          ; )
+          (difference 
+               usb-holder
+               usb-holder-hole
+          )
           ; trrs-holder
           ; (translate [100 100 100]         
           ; )
