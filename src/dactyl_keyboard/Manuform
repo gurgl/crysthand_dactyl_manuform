@@ -985,13 +985,8 @@
 ;;;;;;Plate mount ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn screw-insert-shape [bottom-radius top-radius height]
-   (union  (cylinder [bottom-radius top-radius] height)(with-fn 55)
+   (union (cylinder [bottom-radius top-radius] height)
           (translate [0 0 (/ height 2)] (sphere top-radius))))
-
-(defn plate-screw-insert-shape [bottom-radius height]
-   (union  (cylinder bottom-radius height)(with-fn 55))
-)
-
 
 (defn screw-insert [column row bottom-radius top-radius height]
   (let [shift-right   (= column lastcol)
@@ -1003,33 +998,23 @@
                         (if shift-left (map + (left-key-position row 0) (wall-locate3 -1 0))
                                        (key-position column row (map + (wall-locate2  1  0) [(/ mount-width 2) 0 0])))))
         ]
-
-    (->> ;;easy way to overload the function
-(if (>  top-radius 0.1) (->> (screw-insert-shape bottom-radius top-radius height) (translate [(first position) (second position) (/ height 2)]))
-(if (<  top-radius 0.1)  (->> (plate-screw-insert-shape bottom-radius height) (translate [(first position) (second position) (/ height 2)]))
-
-
-	)
-
-    ))))
+    (->> (screw-insert-shape bottom-radius top-radius height)
+         (translate [(first position) (second position) (/ height 2)])
+    )))
 
 (defn screw-insert-all-shapes [bottom-radius top-radius height]
-  (union (->> (screw-insert 0 0         bottom-radius top-radius height) (translate [8 0 3.6]));;top left
-         (->> (screw-insert 0 lastrow   bottom-radius top-radius height)(translate [4. -4 3.6]))	;;left bottom
-        (->> (screw-insert lastcol (+ lastrow 0.0)  bottom-radius top-radius (- height 0))(translate [-9.5 18.5 3.2]));;right bottom
-
-         (->> (screw-insert 3 0         bottom-radius top-radius height)(translate [0 -6. 3.6]));;middle back
-        (->> (screw-insert lastcol 0   bottom-radius top-radius height)(translate [-5 0 3.6]));;top right
-
-		 ))
-
-
-
-(def screw-insert-height 4.)		;;Was 5.8
-(def screw-insert-bottom-radius (/ 4.6 2));;controls the cutout size
-(def screw-insert-top-radius (/ 4 2))
-(def screw-insert-holes  (screw-insert-all-shapes screw-insert-bottom-radius screw-insert-top-radius (+ screw-insert-height 4.4)))
-(def screw-insert-outers (screw-insert-all-shapes (+ screw-insert-bottom-radius 3.6) (+ screw-insert-top-radius 2.1) (+ screw-insert-height 1.1)))
+  (union (screw-insert 0 0         bottom-radius top-radius height)
+         (screw-insert 0 lastrow   bottom-radius top-radius height)
+         (screw-insert 2 (+ lastrow 0.3)  bottom-radius top-radius height)
+         (screw-insert 3 0         bottom-radius top-radius height)
+         (screw-insert lastcol 1   bottom-radius top-radius height)
+         ))
+(def screw-insert-height 3.8)
+(def screw-insert-bottom-radius (/ 5.31 2))
+(def screw-insert-top-radius (/ 5.1 2))
+(def screw-insert-holes  (screw-insert-all-shapes screw-insert-bottom-radius screw-insert-top-radius screw-insert-height))
+(def screw-insert-outers (screw-insert-all-shapes (+ screw-insert-bottom-radius 1.6) (+ screw-insert-top-radius 1.6) (+ screw-insert-height 1.5)))
+(def screw-insert-screw-holes  (screw-insert-all-shapes 1.7 1.7 350))
 
 
 
@@ -1226,7 +1211,7 @@
 ;;;;;;;;;Plate bottom;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-(def screw-insert-screw-holes  (screw-insert-all-shapes 1.8 1.8 10));;Cuts the holes for the pushfit
+; (def screw-insert-screw-holes  (screw-insert-all-shapes 1.8 1.8 10));;Cuts the holes for the pushfit
 (def plate-screw-recess  (screw-insert-all-shapes 3.1 1.95 2.1));;creates the recess for screws in bottom plate
 
 (def plate-bottom
@@ -1554,7 +1539,15 @@
 
 
 (spit "things/right-plate.scad"
-      (write-scad model-plate-right))
+      (write-scad
+                   (cut
+                     (translate [0 0 -0.1]
+                       (difference (union case-walls
+                                          ;teensy-holder
+                                          ; rj9-holder
+                                          screw-insert-outers)
+                                   (translate [0 0 -10] screw-insert-screw-holes))
+                  ))))
 
 
 (spit "things/wrist-rest.scad"
