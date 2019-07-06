@@ -413,7 +413,13 @@
 
 (defn lower2thumbRoyY [mod] 
   + mod -33)
-
+(defn boo [shape] (->>  shape 
+  ; (rotate (deg2rad -7) [1 0 0])
+  (translate (map - thumborigin))
+  (rotate (deg2rad 12) [1 -1 0])
+  (rotate (deg2rad -4) [0 0 1])  
+  (translate thumborigin)
+  ))
 (defn thumb-tr-place [shape]
   (->>  shape
       ;  (rotate (deg2rad  10) [1 0 0])
@@ -424,6 +430,7 @@
        (rotate (deg2rad  10) [0 0 1])
        (translate thumborigin)
        (translate [-12 -16 3])
+       boo 
        ))
 (defn thumb-tl-place [shape]
   (->> shape
@@ -434,7 +441,9 @@
        (rotate (deg2rad -23) [0 1 0])
        (rotate (deg2rad  10) [0 0 1])
        (translate thumborigin)
-       (translate [-32 -15 -2])))
+       (translate [-32 -15 -2])
+      boo 
+       ))
 (defn thumb-mr-place [shape]
   (->> shape
        (rotate (deg2rad  -6) [1 0 0])
@@ -442,6 +451,7 @@
        (rotate (deg2rad  48) [0 0 1])
        (translate thumborigin)
        (translate [-29 -40 -13])
+      boo 
        ))
 (defn thumb-ml-place [shape]
   (->> shape
@@ -449,7 +459,9 @@
        (rotate (deg2rad (lower2thumbRoyY -1)) [0 1 0])
        (rotate (deg2rad  40) [0 0 1])
        (translate thumborigin)
-       (translate [-51 -25 -12])))
+       (translate [-51 -25 -12])
+      boo 
+       ))
 (defn thumb-br-place [shape]
   (->> shape
        (rotate (deg2rad -16) [1 0 0])
@@ -457,6 +469,7 @@
        (rotate (deg2rad  54) [0 0 1])
        (translate thumborigin)
        (translate [-37.8 -55.3 -25.3])
+      boo 
        ))
 (defn thumb-bl-place [shape]
   (->> shape
@@ -465,6 +478,7 @@
        (rotate (deg2rad  52) [0 0 1])
        (translate thumborigin)
        (translate [-56.3 -43.3 -23.5])
+      boo 
        ))
 
 
