@@ -57,7 +57,7 @@
 ;(def centerrow  2)
 (def centerrow (- nrows 3.5))             ;default 3 controls front-back tilt
 (def centercol 3)                       ;default 3 controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/ (* π 18.434) 180))            ;default 15 or, change this for more precise tenting control
+(def tenting-angle (/ (* π 22) 180))            ;default 15 or, change this for more precise tenting control
 ;(def tenting-angle (/ π 12))            ; or, change this for more precise tenting control
 (def column-style
   (if (> nrows 5) :orthographic :fixed))  ; options include :standard, :orthographic, and :fixed
@@ -70,7 +70,7 @@
 
 (def thumb-offsets [6 -3 7])
 
-(def keyboard-z-offset (if (>= nrows 5) 16 25))  ; default (> nrows 5) 9 14)----options include :standard, :orthographic, and :fixed)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
+(def keyboard-z-offset (if (>= nrows 5) 20 25))  ; default (> nrows 5) 9 14)----options include :standard, :orthographic, and :fixed)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
 
 (def extra-width 2)                   ; extra space between the base of keys; original= 2
 (def extra-height 1)                  ; original= 0.5
@@ -1303,14 +1303,14 @@
 ; (def back-panel-origin [-10 69 14])
 
 (def back-panel-ref
-  (map + [0 2 0] 
-    (key-position 1 0 
+  (map + [0 -1 0] 
+    (key-position 2 0 
       (map + (wall-locate3 0 1) [0 (/ mount-height 2) 0])
     )
   )
 )
 (def back-panel-origin    
-  [(first back-panel-ref) (second back-panel-ref) 14]
+  [(- (first back-panel-ref) 12) (second back-panel-ref) 10]
 )
 
 ; (def rj9-start  (map + [0 -3  0] (key-position 0 0 (map + (wall-locate3 0 1) [0 (/ mount-height  2) 0]))))
