@@ -985,7 +985,7 @@
 ;;;;;;Plate mount ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn screw-insert-shape [bottom-radius top-radius height]
-   (union (cylinder [bottom-radius top-radius] height)
+   (union (cylinder [bottom-radius top-radius] height)(with-fn 55)
           (translate [0 0 (/ height 2)] (sphere top-radius))))
 
 (defn screw-insert [column row bottom-radius top-radius height]
