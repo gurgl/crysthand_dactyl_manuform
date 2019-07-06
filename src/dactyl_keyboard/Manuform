@@ -55,7 +55,7 @@
 (def α (deg2rad 15))                        ;default 15 curvature of the columns
 (def β (deg2rad 5))                        ;default 5 curvature of the rows
 ;(def centerrow  2)
-(def centerrow (- nrows 3))             ;default 3 controls front-back tilt
+(def centerrow (- nrows 3.5))             ;default 3 controls front-back tilt
 (def centercol 3)                       ;default 3 controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (/ (* π 18.434) 180))            ;default 15 or, change this for more precise tenting control
 ;(def tenting-angle (/ π 12))            ; or, change this for more precise tenting control
@@ -841,6 +841,7 @@
 ; (def usb-holder-position (key-position 0 1 (map + (wall-locate1 0 (- 4.9 (* 0.1 nrows))) [0 (/ mount-height 2) 0])))
 ; 
 
+(def usb-holder-thickness 5)
 (def usb-holder-size [5.5 33.34 18.4 ])	;;5.5 33.34 18.4
 (def usb-holder-position 
   (map + 
@@ -859,7 +860,7 @@
 #_(def usb-hole-size [9.5 33.34 23.4  ])  ;Dimensions for adafruit feather
 (def usb-hole-size-left [9.5 35.6 8.0 ]) ;;9.5 35.6 8.0
 (def usb-hole-size-right [6 35.6 10.0 ]) ;;6 35.6 10.0
-(def usb-holder-thickness 5)
+
 (def usb-holder
   (->> (difference
 
@@ -1314,7 +1315,21 @@
 (def panel_x 50.0)
 (def panel_y wall-thickness)
 (def panel_z 12.0)
-(def back-panel-origin [-10 69 14])
+; (def back-panel-origin [-10 69 14])
+
+(def back-panel-ref
+  (map + [0 2 0] 
+    (key-position 1 0 
+      (map + (wall-locate3 0 1) [0 (/ mount-height 2) 0])
+    )
+  )
+)
+(def back-panel-origin    
+  [(first back-panel-ref) (second back-panel-ref) 14]
+)
+
+; (def rj9-start  (map + [0 -3  0] (key-position 0 0 (map + (wall-locate3 0 1) [0 (/ mount-height  2) 0]))))
+; (def rj9-position  [(first rj9-start) (second rj9-start) 11])
 
 (def back-panel-hole  
   (let [
